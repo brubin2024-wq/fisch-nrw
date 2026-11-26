@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Fischerei NRW">
+    <meta name="theme-color" content="#0f3057">
+    <title>Fischereischein NRW — Trainer (DE / RU)</title>
+    <style>
+        :root {
+            --primary: #0f3057;
+            --secondary: #00587a;
+            --accent: #008891;
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --ok: #15803d;
+            --ok-bg: #dcfce7;
+            --bad: #b91c1c;
+            --bad-bg: #fee2e2;
+            --warn: #b45309;
+        }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-text-size-adjust: 100%;
+        }
+        body {
+            padding-bottom: calc(88px + env(safe-area-inset-bottom));
+        }
+        body.hide-ru .ru-text {
+            display: none !important;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            padding-top: calc(10px + env(safe-area-inset-top));
+            padding-bottom: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 60;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.16);
+        }
+        .wrap {
+            max-width: 820px;
+            margin: 0 auto;
+            padding-left: max(12px, env(safe-area-inset-left));
+            padding-right: max(12px, env(safe-area-inset-right));
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.02rem;
+            line-height: 1.2;
+        }
+        .sub {
+            margin: 2px 0 0;
+            font-size: 0.72rem;
+            opacity: 0.9;
+        }
+        .lang-toggle {
+            border: 1.5px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            border-radius: 12px;
+            padding: 8px 12px;
+            min-height: 38px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+        .lang-toggle.ru-off {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+        .nav {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: 10px;
+        }
+        @media (min-width: 640px) {
+            .nav { grid-template-columns: repeat(6, 1fr); }
+        }
+        .nav button {
+            border: none;
+            border-radius: 10px;
+            padding: 8px 4px;
+            min-height: 44px;
+            font-weight: 600;
+            font-size: 0.74rem;
+            cursor: pointer;
+            background: rgba(255,255,255,0.16);
+            color: #fff;
+            line-height: 1.2;
+            touch-action: manipulation;
+        }
+        .nav button.active {
+            background: #fff;
+            color: var(--primary);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .panel {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 14px;
+            margin-top: 14px;
+            box-shadow: 0 4px 14px rgba(15,48,87,0.06);
+        }
+        .search {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 14px;
+            background: #fff;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        .search:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 12px;
+            background: #f8fafc;
+        }
+        .img-box {
+            width: 100%;
+            height: 205px;
+            background: #ffffff;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .img-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .img-fallback {
+            width: 100%;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            border: 1px dashed #94a3b8;
+            font-size: 0.82rem;
+            color: #334155;
+            line-height: 1.35;
+        }
+        .de-title {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 10px;
+        }
+        .ru-title {
+            font-size: 0.96rem;
+            font-weight: 600;
+            color: #0369a1;
+            margin-top: 2px;
+        }
+        .la-title {
+            font-size: 0.84rem;
+            font-style: italic;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        .hidden { display: none !important; }
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 13px 16px;
+            min-height: 48px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            touch-action: manipulation;
+        }
+        .btn:active {
+            opacity: 0.88;
+            transform: scale(0.99);
+        }
+        .btn-sec { background: #475569; }
+        .btn-warn { background: var(--warn); }
+        .opt-btn {
+            width: 100%;
+            text-align: left;
+            padding: 13px 14px;
+            min-height: 48px;
+            margin-top: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.92rem;
+            line-height: 1.35;
+            touch-action: manipulation;
+        }
+        .opt-btn.ok {
+            background: var(--ok-bg);
+            border-color: var(--ok);
+            color: var(--ok);
+            font-weight: 700;
+        }
+        .opt-btn.bad {
+            background: var(--bad-bg);
+            border-color: var(--bad);
+            color: var(--bad);
+            font-weight: 700;
+        }
+        .explain {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+        .bilingual-block {
+            border-left: 3px solid var(--accent);
+            padding-left: 10px;
+            margin-bottom: 12px;
+        }
+        .bilingual-de { font-weight: 700; color: var(--primary); }
+        .bilingual-ru { color: #0369a1; margin-top: 3px; }
+        .select-row { margin-bottom: 12px; }
+        .select-row label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .select-row select {
+            width: 100%;
+            padding: 12px;
+            min-height: 46px;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 16px;
+            background: #fff;
+            color: var(--text);
+        }
+        .err-badge {
+            display: inline-block;
+            background: var(--bad-bg);
+            color: var(--bad);
+            font-weight: 700;
+            font-size: 0.78rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .info-box {
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            color: #0c4a6e;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.92);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+            z-index: 200;
+        }
+        .modal-card {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 920px;
+            width: 100%;
+            max-height: 90vh;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .modal-card img {
+            max-width: 100%;
+            max-height: 64vh;
+            object-fit: contain;
+        }
+        .modal-top {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .close-btn {
+            border: none;
+            background: #e2e8f0;
+            color: var(--text);
+            border-radius: 10px;
+            padding: 9px 14px;
+            min-height: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="wrap">
+        <div class="header-top">
+            <div>
+                <h1>Fischereischein NRW <span class="ru-text">· Тренажёр</span></h1>
+                <div class="sub">Anlage 3 (49 Arten) <span class="ru-text">· Удочки · Вопросы · Ошибки</span></div>
+            </div>
+            <button id="lang-btn" class="lang-toggle" onclick="toggleRussian()">
+                RU: ВКЛ
+            </button>
+        </div>
+        <div class="nav">
+            <button id="btn-catalog" class="active" onclick="showTab('catalog')">🐟 Arten (49)<span class="ru-text"><br>Виды</span></button>
+            <button id="btn-species-test" onclick="showTab('species-test')">🎯 Artentest<span class="ru-text"><br>Тест (6)</span></button>
+            <button id="btn-rod" onclick="showTab('rod')">🎣 Montage<span class="ru-text"><br>Удочки</span></button>
+            <button id="btn-theory" onclick="showTab('theory')">❓ Fragen<span class="ru-text"><br>Вопросы</span></button>
+            <button id="btn-mistakes" onclick="showTab('mistakes')">📌 Fehler (<span id="err-count">0</span>)<span class="ru-text"><br>Ошибки</span></button>
+            <button id="btn-exam-sim" onclick="showTab('exam-sim')">📝 Prüfung<span class="ru-text"><br>Экзамен</span></button>
+        </div>
+    </div>
+</header>
+
+<div class="wrap">
+    <!-- 1. Список 49 видов -->
+    <div id="tab-catalog" class="panel">
+        <div class="bilingual-block">
+            <div class="bilingual-de">Artenliste nach Anlage 3 NRW (49 Arten) — Deutsch, Latein & Gruppe.</div>
+            <div class="bilingual-ru ru-text">Список всех 49 видов по Anlage 3 NRW — немецкое название, перевод, латынь и признаки.</div>
+        </div>
+        <div class="info-box ru-text">
+            <b>Как подключить фото из интернета:</b> загрузите папку с картинками (<code>01.jpg</code> … <code>49.jpg</code>) на хостинг или репозиторий и вставьте прямую ссылку на папку в строчку <code>IMAGE_BASE_URL</code> внизу файла. Если ссылка ещё не указана, тренажёр всё равно работает и показывает признаки каждого вида.
+        </div>
+        <input id="search-input" class="search" type="search" placeholder="Suche: Deutsch, Latein, Nr. (поиск)..." oninput="renderCatalog()">
+        <div id="catalog-container"></div>
+    </div>
+
+    <!-- 2. Тренировка по видам (6 карточек) -->
+    <div id="tab-species-test" class="panel hidden">
+        <div id="sp-header" style="font-weight:700; margin-bottom:10px;"></div>
+        <div id="sp-media-box"></div>
+        <div id="sp-options" style="margin-top:10px;"></div>
+        <div id="sp-feedback" class="explain hidden"></div>
+        <button id="sp-next" class="btn hidden" onclick="nextSpeciesQuestion()">Nächster Fisch <span class="ru-text">/ Следующий вид </span>➔</button>
+        <button class="btn btn-sec" onclick="startSpeciesTest()">Neuer Artentest (6 Arten)<span class="ru-text"> / Новая тренировка</span></button>
+    </div>
+
+    <!-- 3. Симулятор сборки удочек -->
+    <div id="tab-rod" class="panel hidden">
+        <div class="bilingual-block">
+            <div class="bilingual-de">Simulator: Rute & Montage zusammenstellen (Fischereiprüfung NRW)</div>
+            <div class="bilingual-ru ru-text">Симулятор сборки удочки и оснастки под выбранный вид ловли</div>
+        </div>
+        <div id="rod-task-box" class="explain" style="margin-bottom:14px;"></div>
+        <div class="select-row">
+            <label>1. Angelrute<span class="ru-text"> / Удилище</span>:</label>
+            <select id="rod-rute"></select>
+        </div>
+        <div class="select-row">
+            <label>2. Rolle & Schnur<span class="ru-text"> / Катушка и леска</span>:</label>
+            <select id="rod-schnur"></select>
+        </div>
+        <div class="select-row">
+            <label>3. Montage & Köder<span class="ru-text"> / Оснастка и приманка</span>:</label>
+            <select id="rod-montage"></select>
+        </div>
+        <div class="select-row">
+            <label>4. Pflichtzubehör<span class="ru-text"> / Обязательный инвентарь</span>:</label>
+            <select id="rod-zubehoer"></select>
+        </div>
+        <button class="btn" onclick="checkRodSetup()">Montage prüfen<span class="ru-text"> / Проверить сборку</span></button>
+        <div id="rod-result" class="explain hidden"></div>
+        <button class="btn btn-sec" onclick="newRodTask()">Neue Aufgabe<span class="ru-text"> / Новое задание по сборке</span></button>
+    </div>
+
+    <!-- 4. Вопросы -->
+    <div id="tab-theory" class="panel hidden">
+        <div id="th-header" style="font-weight:700; margin-bottom:10px;"></div>
+        <div id="th-question" style="margin-bottom:10px;"></div>
+        <div id="th-options"></div>
+        <div id="th-explain" class="explain hidden"></div>
+        <button id="th-next" class="btn hidden" onclick="nextTheoryQuestion()">Nächste Frage <span class="ru-text">/ Следующий вопрос </span>➔</button>
+        <button class="btn btn-sec" onclick="startTheoryQuiz()">Fragenblock neu starten<span class="ru-text"> / Начать заново</span></button>
+    </div>
+
+    <!-- 5. Ошибки -->
+    <div id="tab-mistakes" class="panel hidden">
+        <div class="bilingual-block">
+            <div class="bilingual-de">Fehleranalyse & Nachholtraining — alle falschen Antworten aus Tests und Prüfung.</div>
+            <div class="bilingual-ru ru-text">Работа над ошибками — сюда попадают неверные ответы из тестов и экзамена.</div>
+        </div>
+        <div id="mistakes-list"></div>
+        <button id="btn-retry-mistakes" class="btn btn-warn hidden" onclick="startMistakeDrill()">Fehler trainieren<span class="ru-text"> / Тренировать только ошибки</span></button>
+        <button class="btn btn-sec" onclick="clearMistakes()">Fehlerliste löschen<span class="ru-text"> / Очистить список ошибок</span></button>
+    </div>
+
+    <!-- 6. Экзамен -->
+    <div id="tab-exam-sim" class="panel hidden">
+        <div class="bilingual-block">
+            <div class="bilingual-de">Prüfungssimulation — kombinierter Test (Arten + Theorie).</div>
+            <div class="bilingual-ru ru-text">Пробный экзамен — комбинированный тест из видов и вопросов.</div>
+        </div>
+        <div id="sim-header" style="font-weight:700; margin-bottom:10px;"></div>
+        <div id="sim-media-box" class="hidden"></div>
+        <div id="sim-question" style="margin:10px 0;"></div>
+        <div id="sim-options"></div>
+        <div id="sim-explain" class="explain hidden"></div>
+        <button id="sim-next" class="btn hidden" onclick="nextSimStep()">Weiter <span class="ru-text">/ Далее </span>➔</button>
+        <button class="btn btn-sec" onclick="startFullExamSim()">Prüfung neu starten<span class="ru-text"> / Запустить новый экзамен</span></button>
+    </div>
+</div>
+
+<div id="modal" class="modal hidden" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-top">
+            <div id="modal-title"></div>
+            <button class="close-btn" onclick="closeModal()">Schließen <span class="ru-text">/ Закрыть </span>✕</button>
+        </div>
+        <img id="modal-img" src="" alt="">
+    </div>
+</div>
+
+<script>
+// Вставьте сюда прямую ссылку на папку с фото в интернете (со слэшем / на конце),
+// например: "https://ваш-аккаунт.github.io/fisch-bilder/"
+// Если оставить пустой строкой "", будут показаны текстовые признаки вида без ошибок загрузки.
+const IMAGE_BASE_URL = "";
+
+function getSpeciesImageUrl(num) {
+    if (!IMAGE_BASE_URL || !IMAGE_BASE_URL.trim()) return "";
+    const base = IMAGE_BASE_URL.trim().replace(/\/+$/, "");
+    return `${base}/${num}.jpg`;
+}
+
+function buildSpeciesVisualHtml(f, forTest = false) {
+    const url = getSpeciesImageUrl(f.num);
+    const hintText = forTest
+        ? `<div class="img-fallback"><b>Nr. ${f.num}</b> · <b>Merkmal:</b> ${f.grpDe}<span class="ru-text"> (${f.grpRu})</span><br><span style="font-style:italic;">Latein: ${f.la}</span></div>`
+        : `<div class="img-fallback"><b>#${f.num}</b> · <b>Merkmal:</b> ${f.grpDe}<span class="ru-text"> (${f.grpRu})</span><br><span class="ru-text">Ссылка на папку с фото ещё не задана в <code>IMAGE_BASE_URL</code>.</span></div>`;
+
+    if (!url) return hintText;
+    return `
+        <div class="img-box" onclick="openSpeciesModal('${f.num}')">
+            <img src="${url}" alt="${f.de}" loading="lazy" onerror="handleRemoteImgError(this, '${f.num}')">
+        </div>
+    `;
+}
+
+function handleRemoteImgError(imgEl, num) {
+    const f = speciesList.find(x => x.num === num);
+    if (!f || !imgEl.parentElement) return;
+    imgEl.parentElement.outerHTML = `
+        <div class="img-fallback">
+            <b>#${f.num}</b> · <b>Merkmal:</b> ${f.grpDe}<span class="ru-text"> (${f.grpRu})</span><br>
+            <span style="font-style:italic;">Latein: ${f.la}</span>
+        </div>
+    `;
+}
+
+const speciesList = [
+    { num: "01", de: "Aal", la: "Anguilla anguilla", ru: "Речной угорь", grpDe: "Fisch (schlangenförmig)", grpRu: "Рыба (змеевидная форма)" },
+    { num: "02", de: "Äsche", la: "Thymallus thymallus", ru: "Хариус", grpDe: "Fisch mit Fettflosse", grpRu: "Рыба с жировым плавником" },
+    { num: "03", de: "Aland", la: "Leuciscus idus", ru: "Язь", grpDe: "Weißfisch / Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "04", de: "Bachforelle", la: "Salmo trutta f. fario", ru: "Ручьевая форель", grpDe: "Salmonide (Fettflosse)", grpRu: "Лососёвый (жировой плавник)" },
+    { num: "05", de: "Bachneunauge", la: "Lampetra planeri", ru: "Европейская ручьевая минога", grpDe: "Rundmaul (geschützt)", grpRu: "Круглоротое (охраняется)" },
+    { num: "06", de: "Bachsaibling", la: "Salvelinus fontinalis", ru: "Американский голец", grpDe: "Salmonide (Fettflosse)", grpRu: "Лососёвый (жировой плавник)" },
+    { num: "07", de: "Barbe", la: "Barbus barbus", ru: "Усач", grpDe: "Karpfenartiger (4 Barteln)", grpRu: "Карповый (4 усика)" },
+    { num: "08", de: "Barsch (Flussbarsch)", la: "Perca fluviatilis", ru: "Речной окунь", grpDe: "Barschartiger (Stachelstrahlen)", grpRu: "Окунёвый (колючие лучи)" },
+    { num: "09", de: "Bitterling", la: "Rhodeus amarus", ru: "Горчак", grpDe: "Kleiner Karpfenartiger", grpRu: "Мелкий карповый вид" },
+    { num: "10", de: "Blende (Güster)", la: "Blicca bjoerkna", ru: "Густера", grpDe: "Weißfisch / Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "11", de: "Döbel", la: "Squalius cephalus", ru: "Голавль", grpDe: "Weißfisch / Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "12", de: "Edelkrebs", la: "Astacus astacus", ru: "Широкопалый рак", grpDe: "Krebsart (Anlage 3)", grpRu: "Рак (перечень Anlage 3)" },
+    { num: "13", de: "Elritze", la: "Phoxinus phoxinus", ru: "Гольян", grpDe: "Kleiner Karpfenartiger", grpRu: "Мелкий карповый вид" },
+    { num: "14", de: "Espe (Rapfen)", la: "Aspius aspius", ru: "Жерех", grpDe: "Raubfisch / Karpfenartiger", grpRu: "Хищный карповый вид" },
+    { num: "15", de: "Forellenbarsch", la: "Micropterus salmoides", ru: "Большеротый чёрный окунь", grpDe: "Barschartiger Raubfisch", grpRu: "Хищный окунёвый вид" },
+    { num: "16", de: "Gründling", la: "Gobio gobio", ru: "Пескарь", grpDe: "Bodenfisch (2 Barteln)", grpRu: "Донный вид (2 усика)" },
+    { num: "17", de: "Goldfisch", la: "Carassius auratus", ru: "Золотая рыбка", grpDe: "Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "18", de: "Graskarpfen", la: "Ctenopharyngodon idella", ru: "Белый амур", grpDe: "Pflanzenfressender Karpfenartiger", grpRu: "Растительноядный карповый" },
+    { num: "19", de: "Huchen", la: "Hucho hucho", ru: "Дунайский лосось", grpDe: "Salmonide (Fettflosse)", grpRu: "Лососёвый (жировой плавник)" },
+    { num: "20", de: "Karausche", la: "Carassius carassius", ru: "Золотой карась", grpDe: "Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "21", de: "Karpfen", la: "Cyprinus carpio", ru: "Карп", grpDe: "Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "22", de: "Kaulbarsch", la: "Gymnocephalus cernua", ru: "Ёрш", grpDe: "Barschartiger", grpRu: "Окунёвый вид" },
+    { num: "23", de: "Kleine Maräne", la: "Coregonus albula", ru: "Европейская ряпушка", grpDe: "Renke / Salmonide (Fettflosse)", grpRu: "Сиговый / лососёвый (жировой плавник)" },
+    { num: "24", de: "Lachs", la: "Salmo salar", ru: "Лосось благородный (сёмга)", grpDe: "Salmonide (Fettflosse)", grpRu: "Лососёвый (жировой плавник)" },
+    { num: "25", de: "Maifisch", la: "Alosa alosa", ru: "Финта", grpDe: "Heringsartiger (Wanderfisch)", grpRu: "Сельдевый (проходной вид)" },
+    { num: "26", de: "Meerforelle", la: "Salmo trutta trutta", ru: "Морская форель (кумжа)", grpDe: "Salmonide (Fettflosse)", grpRu: "Лососёвый (жировой плавник)" },
+    { num: "27", de: "Moderlieschen", la: "Leucaspius delineatus", ru: "Верховка", grpDe: "Kleiner Karpfenartiger", grpRu: "Мелкий карповый вид" },
+    { num: "28", de: "Mühlkoppe (Koppe)", la: "Cottus gobio", ru: "Подкаменщик", grpDe: "Bodenfisch (großer Kopf)", grpRu: "Донный вид (широкая голова)" },
+    { num: "29", de: "Nase", la: "Chondrostoma nasus", ru: "Подуст", grpDe: "Karpfenartiger (unterständiges Maul)", grpRu: "Карповый (нижний рот)" },
+    { num: "30", de: "Orfe (Goldorfe)", la: "Leuciscus idus var.", ru: "Золотой язь (орфа)", grpDe: "Farbvariante des Alands", grpRu: "Цветовая форма язя" },
+    { num: "31", de: "Regenbogenforelle", la: "Oncorhynchus mykiss", ru: "Радужная форель", grpDe: "Salmonide (Fettflosse)", grpRu: "Лососёвый (жировой плавник)" },
+    { num: "32", de: "Quappe (Trüsche)", la: "Lota lota", ru: "Налим", grpDe: "Süßwasserdorsch (Kinnbartel)", grpRu: "Пресноводный тресковый (усик на подбородке)" },
+    { num: "33", de: "Rotauge", la: "Rutilus rutilus", ru: "Плотва", grpDe: "Weißfisch / Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "34", de: "Rotfeder", la: "Scardinius erythrophthalmus", ru: "Краснопёрка", grpDe: "Weißfisch / Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "35", de: "Schleie", la: "Tinca tinca", ru: "Линь", grpDe: "Karpfenartiger (kleine Schuppen)", grpRu: "Карповый (мелкая чешуя)" },
+    { num: "36", de: "Schlammpeitzger", la: "Misgurnus fossilis", ru: "Обыкновенный вьюн", grpDe: "Schmerlenartiger (Barteln)", grpRu: "Вьюновый (усики)" },
+    { num: "37", de: "Schneider", la: "Alburnoides bipunctatus", ru: "Быстрянка", grpDe: "Weißfisch / Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "38", de: "Schwarzmeergrundel", la: "Neogobius melanostomus", ru: "Бычок-кругляк", grpDe: "Grundelartiger (Saugscheibe)", grpRu: "Бычковый (брюшная присоска)" },
+    { num: "39", de: "Seesaibling", la: "Salvelinus umbla", ru: "Арктический голец", grpDe: "Salmonide (Fettflosse)", grpRu: "Лососёвый (жировой плавник)" },
+    { num: "40", de: "Signalkrebs", la: "Pacifastacus leniusculus", ru: "Сигнальный рак", grpDe: "Krebsart (Anlage 3)", grpRu: "Рак (перечень Anlage 3)" },
+    { num: "41", de: "Silberkarpfen", la: "Hypophthalmichthys molitrix", ru: "Белый толстолобик", grpDe: "Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "42", de: "Stint", la: "Osmerus eperlanus", ru: "Корюшка европейская", grpDe: "Fisch mit Fettflosse", grpRu: "Рыба с жировым плавником" },
+    { num: "43", de: "Stör", la: "Acipenser sturio", ru: "Осётр европейский", grpDe: "Störartiger (Knochenplatten)", grpRu: "Осетровый (жучки на теле)" },
+    { num: "44", de: "Ukelei (Laube)", la: "Alburnus alburnus", ru: "Уклейка", grpDe: "Weißfisch / Karpfenartiger", grpRu: "Карповый вид" },
+    { num: "45", de: "Wels (Waller)", la: "Silurus glanis", ru: "Обыкновенный сом", grpDe: "Welsartiger (lange Barteln)", grpRu: "Сомовый (длинные усы)" },
+    { num: "46", de: "Zander", la: "Sander lucioperca", ru: "Судак", grpDe: "Barschartiger Raubfisch", grpRu: "Хищный окунёвый вид" },
+    { num: "47", de: "Zwergwels", la: "Ameiurus nebulosus", ru: "Американский сомик", grpDe: "Welsartiger", grpRu: "Сомовый вид" },
+    { num: "48", de: "Hecht", la: "Esox lucius", ru: "Щука", grpDe: "Hechtartiger Raubfisch", grpRu: "Хищный вид (щучьи)" },
+    { num: "49", de: "Seeforelle", la: "Salmo trutta lacustris", ru: "Озёрная форель", grpDe: "Salmonide (Fettflosse)", grpRu: "Лососёвый (жировой плавник)" }
+];
+
+const theoryQuestions = [
+    {
+        id: "q1",
+        qDe: "Woran erkennt man Salmoniden und Äschen im Seitenprofil meistens?",
+        qRu: "По какому признаку на виде сбоку чаще всего узнают лососёвых и хариуса?",
+        opts: [
+            { de: "An der Fettflosse zwischen Rücken- und Schwanzflosse", ru: "По жировому плавнику (Fettflosse) между спинным и хвостовым плавниками" },
+            { de: "An vier Barteln am Oberkiefer", ru: "По четырём усикам на верхней челюсти" },
+            { de: "An einer einzelnen langen Rückenflosse vom Kopf bis zum Schwanz", ru: "По единому длинному спинному плавнику от головы до хвоста" }
+        ],
+        correct: 0,
+        expDe: "Salmoniden, Äschen und Stinte besitzen hinten eine kleine Fettflosse ohne Flossenstrahlen.",
+        expRu: "У лососёвых, хариусов и корюшковых позади спинного плавника расположен мягкий жировой плавник (Fettflosse) без лучей."
+    },
+    {
+        id: "q2",
+        qDe: "Was bedeutet „Schonzeit“ im Fischereirecht?",
+        qRu: "Что означает термин «Schonzeit» в правилах рыболовства?",
+        opts: [
+            { de: "Zeitraum, in dem der Fang einer Art zum Schutz (z. B. Laichzeit) verboten ist", ru: "Срок запрета на вылов вида в период охраны / нереста" },
+            { de: "Erlaubte Angelzeit nur bei Nacht", ru: "Разрешённое время ловли только ночью" },
+            { de: "Mindestgröße eines Fisches", ru: "Минимальный разрешённый размер рыбы" }
+        ],
+        correct: 0,
+        expDe: "Während der Schonzeit geschützte Fische müssen unverzüglich und schonend zurückgesetzt werden.",
+        expRu: "Рыбу, находящуюся под охраной в период Schonzeit, необходимо бережно и немедленно отпустить."
+    },
+    {
+        id: "q3",
+        qDe: "Was bezeichnet das „Mindestmaß“?",
+        qRu: "Что означает «Mindestmaß» при ловле рыбы?",
+        opts: [
+            { de: "Die kleinste Länge, ab der ein Fisch entnommen werden darf", ru: "Минимальная длина рыбы, при достижении которой её разрешается забрать" },
+            { de: "Das maximale Tagesfanggewicht", ru: "Максимально допустимый вес улова за день" },
+            { de: "Die Mindestlänge der Angelrute", ru: "Минимальная длина удилища" }
+        ],
+        correct: 0,
+        expDe: "Untermaßige Fische dürfen nicht entnommen werden.",
+        expRu: "Рыбу меньше установленного минимального размера (Mindestmaß) забирать нельзя."
+    },
+    {
+        id: "q4",
+        qDe: "Welche zwei Krebsarten stehen in Anlage 3 NRW?",
+        qRu: "Какие два вида раков входят в перечень Anlage 3 NRW?",
+        opts: [
+            { de: "Edelkrebs und Signalkrebs", ru: "Широкопалый рак (Edelkrebs) и сигнальный рак (Signalkrebs)" },
+            { de: "Bachneunauge und Schleie", ru: "Ручьевая минога (Bachneunauge) и линь (Schleie)" },
+            { de: "Rotauge und Rotfeder", ru: "Плотва (Rotauge) и краснопёрка (Rotfeder)" }
+        ],
+        correct: 0,
+        expDe: "Anlage 3 NRW umfasst 49 Arten: 46 Fischarten, 1 Rundmaul (Bachneunauge) und 2 Krebsarten.",
+        expRu: "В перечне Anlage 3 NRW 49 видов: 46 рыб, 1 минога (Bachneunauge) и 2 вида раков (Edelkrebs и Signalkrebs)."
+    },
+    {
+        id: "q5",
+        qDe: "Welche Ausrüstung gehört beim Angeln zwingend dazu?",
+        qRu: "Какой инвентарь обязательно должен быть при себе на рыбалке?",
+        opts: [
+            { de: "Kescher (Unterfangnetz), Hakenlöser und Maßband/Messgerät", ru: "Подсачек (Kescher), экстрактор/зевник (Hakenlöser) и измерительная линейка/рулетка" },
+            { de: "Nur Rute und Köder ohne Zubehör", ru: "Только удилище и приманка без вспомогательного инвентаря" },
+            { de: "Kescher nur für Raubfische", ru: "Подсачек только при ловле хищника" }
+        ],
+        correct: 0,
+        expDe: "Für waidgerechtes Landen, Abhaken und Messen sind Kescher, Hakenlöser und Maßband erforderlich.",
+        expRu: "Для бережного взятия, снятия крючка и проверки размера обязательны подсачек, инструмент для снятия крючка и линейка."
+    }
+];
+
+const rodTasks = [
+    {
+        id: "rod1",
+        taskDe: "Aufgabe: Friedfischangeln (Rotauge / Brasse) mit Pose im ruhigen Gewässer.",
+        taskRu: "Задание: ловля мирной рыбы (плотва / лещ) на поплавок в спокойной воде.",
+        rute: "stipprute_pose",
+        schnur: "mono_018",
+        montage: "pose_blei_haken",
+        zubehoer: "kescher_loeser_mass",
+        expDe: "Feine Pose, dünne monophile Schnur und Kleinhaken passen ideal für Friedfische mit Pose.",
+        expRu: "Поплавочная оснастка, тонкая монолеска и небольшой крючок подходят для поплавочной ловли мирной рыбы."
+    },
+    {
+        id: "rod2",
+        taskDe: "Aufgabe: Spinnfischen auf Raubfisch (Hecht / Zander) mit Kunstköder.",
+        taskRu: "Задание: спиннинговая ловля хищника (щука / судак) на искусственную приманку.",
+        rute: "spinnrute",
+        schnur: "geflochten_vorfach",
+        montage: "kunstkoeder_stahl",
+        zubehoer: "kescher_loeser_mass",
+        expDe: "Spinnrute mit geflochtener Schnur und Stahl-/Fluorocarbon-Vorfach schützt vor Hechtbissen.",
+        expRu: "Спиннинг с плетёной леской и поводком (особенно при риске поклёвки щуки) — верная сборка для спиннинга."
+    },
+    {
+        id: "rod3",
+        taskDe: "Aufgabe: Grundangeln (Aal / Karpfen) am Gewässergrund.",
+        taskRu: "Задание: донная ловля (угорь / карп) у дна водоёма.",
+        rute: "grund_feeder",
+        schnur: "mono_028",
+        montage: "grundblei_wurm",
+        zubehoer: "kescher_loeser_mass",
+        expDe: "Für Grundangeln eignen sich Grund-/Feederrute, kräftigere Schnur und Grundblei-/Feedermontage.",
+        expRu: "Для донной ловли используются донное/фидерное удилище, более прочная леска и донная оснастка с грузилом."
+    }
+];
+
+const rodOptions = {
+    rute: [
+        { val: "stipprute_pose", de: "Stipprute / Matchrute (Posenrute)", ru: "Поплавочное / матчевое удилище" },
+        { val: "spinnrute", de: "Spinnrute (2,10–2,70 m)", ru: "Спиннинг" },
+        { val: "grund_feeder", de: "Grund- / Feederrute", ru: "Донное / фидерное удилище" }
+    ],
+    schnur: [
+        { val: "mono_018", de: "Monofile Schnur 0,18 mm", ru: "Монолеска 0,18 мм" },
+        { val: "geflochten_vorfach", de: "Geflochtene Schnur + Vorfach", ru: "Плетёнка + поводок" },
+        { val: "mono_028", de: "Starke Monofile 0,28–0,32 mm", ru: "Прочная монолеска 0,28–0,32 мм" }
+    ],
+    montage: [
+        { val: "pose_blei_haken", de: "Pose + Bleischrot + Haken", ru: "Поплавок + свинцовые грузила + крючок" },
+        { val: "kunstkoeder_stahl", de: "Kunstköder + Stahl-/Fluorocarbon-Vorfach", ru: "Воблер / блесна / джиг + поводок" },
+        { val: "grundblei_wurm", de: "Grundblei / Futterkorb + Haken", ru: "Донное грузило / кормушка + крючок" }
+    ],
+    zubehoer: [
+        { val: "kescher_loeser_mass", de: "Kescher + Hakenlöser + Maßband", ru: "Подсачек + экстрактор + линейка" },
+        { val: "ohne_zubehoer", de: "Ohne Kescher & Hakenlöser", ru: "Без подсачека и экстрактора" }
+    ]
+};
+
+let hideRu = false;
+let mistakes = [];
+let spSet = [], spIdx = 0, spScore = 0, spCurrent = null;
+let thOrder = [], thIdx = 0, thScore = 0;
+let curRodTask = null;
+let simSteps = [], simIdx = 0, simScore = 0, simCurrent = null;
+
+function applyLangState() {
+    document.body.classList.toggle("hide-ru", hideRu);
+    const btn = document.getElementById("lang-btn");
+    if (hideRu) {
+        btn.textContent = "RU: ВЫКЛ";
+        btn.classList.add("ru-off");
+    } else {
+        btn.textContent = "RU: ВКЛ";
+        btn.classList.remove("ru-off");
+    }
+    updateRodSelectLabels();
+}
+
+function toggleRussian() {
+    hideRu = !hideRu;
+    try {
+        localStorage.setItem("nrw_hide_ru", hideRu ? "1" : "0");
+    } catch (e) {}
+    applyLangState();
+}
+
+function updateRodSelectLabels() {
+    const map = [
+        ["rod-rute", rodOptions.rute],
+        ["rod-schnur", rodOptions.schnur],
+        ["rod-montage", rodOptions.montage],
+        ["rod-zubehoer", rodOptions.zubehoer]
+    ];
+    map.forEach(([id, arr]) => {
+        const sel = document.getElementById(id);
+        if (!sel || !sel.options.length) return;
+        const currentVal = sel.value;
+        sel.innerHTML = arr.map(o =>
+            `<option value="${o.val}">${hideRu ? o.de : (o.de + " / " + o.ru)}</option>`
+        ).join("");
+        if (currentVal) sel.value = currentVal;
+    });
+}
+
+function showTab(tab) {
+    ["catalog", "species-test", "rod", "theory", "mistakes", "exam-sim"].forEach(t => {
+        document.getElementById("tab-" + t).classList.toggle("hidden", t !== tab);
+        document.getElementById("btn-" + t).classList.toggle("active", t === tab);
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (tab === "species-test" && spSet.length === 0) startSpeciesTest();
+    if (tab === "rod" && !curRodTask) newRodTask();
+    if (tab === "theory" && thOrder.length === 0) startTheoryQuiz();
+    if (tab === "mistakes") renderMistakes();
+    if (tab === "exam-sim" && simSteps.length === 0) startFullExamSim();
+}
+
+function updateErrorCounter() {
+    document.getElementById("err-count").textContent = mistakes.length;
+}
+
+function recordMistake(item) {
+    if (!mistakes.some(m => m.key === item.key)) {
+        mistakes.push(item);
+        updateErrorCounter();
+    }
+}
+
+function renderCatalog() {
+    const q = document.getElementById("search-input").value.trim().toLowerCase();
+    const box = document.getElementById("catalog-container");
+    const list = speciesList.filter(f =>
+        f.de.toLowerCase().includes(q) ||
+        f.ru.toLowerCase().includes(q) ||
+        f.la.toLowerCase().includes(q) ||
+        f.num.includes(q)
+    );
+    box.innerHTML = list.map(f => `
+        <div class="card">
+            ${buildSpeciesVisualHtml(f, false)}
+            <div class="de-title">#${f.num} · ${f.de}</div>
+            <div class="ru-title ru-text">${f.ru}</div>
+            <div class="la-title">${f.la} — ${hideRu ? f.grpDe : (f.grpDe + " / " + f.grpRu)}</div>
+        </div>
+    `).join("") || `<p>Nichts gefunden<span class="ru-text"> / Ничего не найдено</span>.</p>`;
+}
+
+function openSpeciesModal(num) {
+    const f = speciesList.find(x => x.num === num);
+    const url = getSpeciesImageUrl(num);
+    if (!f || !url) return;
+    document.getElementById("modal-title").innerHTML =
+        `<b>#${f.num} · ${f.de}</b> <span class="ru-text">— ${f.ru}</span>`;
+    const img = document.getElementById("modal-img");
+    img.src = url;
+    img.alt = f.de;
+    document.getElementById("modal").classList.remove("hidden");
+}
+
+function closeModal(ev) {
+    if (!ev || ev.target.id === "modal") {
+        document.getElementById("modal").classList.add("hidden");
+    }
+}
+
+function startSpeciesTest() {
+    spSet = [...speciesList].sort(() => Math.random() - 0.5).slice(0, 6);
+    spIdx = 0;
+    spScore = 0;
+    renderSpeciesStep();
+}
+
+function renderSpeciesStep() {
+    const box = document.getElementById("sp-media-box");
+    const opts = document.getElementById("sp-options");
+    const fb = document.getElementById("sp-feedback");
+    const nextBtn = document.getElementById("sp-next");
+    fb.classList.add("hidden");
+    nextBtn.classList.add("hidden");
+
+    if (spIdx >= 6) {
+        spCurrent = null;
+        document.getElementById("sp-header").innerHTML = `Ergebnis: ${spScore} von 6<span class="ru-text"> · Итог: ${spScore} из 6</span>`;
+        box.innerHTML = `<div class="img-fallback"><b>${spScore >= 4 ? "Bestanden (mindestens 4/6)!" : "Mindestens 4 von 6 nötig."}</b><span class="ru-text"><br>${spScore >= 4 ? "Сдано (минимум 4/6)!" : "Нужно минимум 4 из 6."}</span></div>`;
+        opts.innerHTML = "";
+        return;
+    }
+
+    spCurrent = spSet[spIdx];
+    document.getElementById("sp-header").innerHTML =
+        `Art ${spIdx + 1} von 6 · Richtig: ${spScore}<span class="ru-text"> · Вид ${spIdx + 1} из 6 (Верно: ${spScore})</span>`;
+    box.innerHTML = buildSpeciesVisualHtml(spCurrent, true);
+
+    const choices = [spCurrent];
+    while (choices.length < 3) {
+        const rand = speciesList[Math.floor(Math.random() * speciesList.length)];
+        if (!choices.some(c => c.num === rand.num)) choices.push(rand);
+    }
+    choices.sort(() => Math.random() - 0.5);
+
+    opts.innerHTML = choices.map(c => `
+        <button class="opt-btn" onclick="answerSpecies(this, '${c.num}')">
+            <b>${c.de}</b> <span class="ru-text">— ${c.ru}</span>
+        </button>
+    `).join("");
+}
+
+function answerSpecies(btn, chosenNum) {
+    const buttons = document.querySelectorAll("#sp-options .opt-btn");
+    buttons.forEach(b => b.disabled = true);
+    const fb = document.getElementById("sp-feedback");
+    if (chosenNum === spCurrent.num) {
+        btn.classList.add("ok");
+        spScore++;
+        fb.innerHTML = `<div class="bilingual-de">Richtig: ${spCurrent.de} (${spCurrent.la})</div><div class="bilingual-ru ru-text">Верно: ${spCurrent.ru}</div>`;
+    } else {
+        btn.classList.add("bad");
+        buttons.forEach(b => {
+            if (b.textContent.includes(spCurrent.de)) b.classList.add("ok");
+        });
+        fb.innerHTML = `<div class="bilingual-de">Falsch. Richtig ist: ${spCurrent.de} (${spCurrent.la})</div><div class="bilingual-ru ru-text">Ошибка. Правильно: ${spCurrent.ru}</div>`;
+        recordMistake({
+            key: "sp_" + spCurrent.num,
+            titleDe: `Artentest #${spCurrent.num}: ${spCurrent.de} (${spCurrent.la})`,
+            titleRu: `Тест видов #${spCurrent.num}: ${spCurrent.ru}`,
+            detailDe: `Richtige Art: ${spCurrent.de}`,
+            detailRu: `Правильный вид: ${spCurrent.de} — ${spCurrent.ru}`
+        });
+    }
+    fb.classList.remove("hidden");
+    document.getElementById("sp-next").classList.remove("hidden");
+}
+
+function nextSpeciesQuestion() {
+    spIdx++;
+    renderSpeciesStep();
+}
+
+function fillSelect(id, arr) {
+    document.getElementById(id).innerHTML = arr.map(o =>
+        `<option value="${o.val}">${hideRu ? o.de : (o.de + " / " + o.ru)}</option>`
+    ).join("");
+}
+
+function newRodTask() {
+    curRodTask = rodTasks[Math.floor(Math.random() * rodTasks.length)];
+    document.getElementById("rod-task-box").innerHTML = `
+        <div class="bilingual-de">${curRodTask.taskDe}</div>
+        <div class="bilingual-ru ru-text">${curRodTask.taskRu}</div>
+    `;
+    fillSelect("rod-rute", rodOptions.rute);
+    fillSelect("rod-schnur", rodOptions.schnur);
+    fillSelect("rod-montage", rodOptions.montage);
+    fillSelect("rod-zubehoer", rodOptions.zubehoer);
+    document.getElementById("rod-result").classList.add("hidden");
+}
+
+function checkRodSetup() {
+    const r = document.getElementById("rod-rute").value;
+    const s = document.getElementById("rod-schnur").value;
+    const m = document.getElementById("rod-montage").value;
+    const z = document.getElementById("rod-zubehoer").value;
+    const res = document.getElementById("rod-result");
+
+    const ok = (r === curRodTask.rute && s === curRodTask.schnur && m === curRodTask.montage && z === curRodTask.zubehoer);
+    if (ok) {
+        res.innerHTML = `
+            <div class="bilingual-de" style="color:var(--ok);">Montage korrekt! ${curRodTask.expDe}</div>
+            <div class="bilingual-ru ru-text" style="color:var(--ok);">Сборка верная! ${curRodTask.expRu}</div>
+        `;
+    } else {
+        res.innerHTML = `
+            <div class="bilingual-de" style="color:var(--bad);">Montage unvollständig oder unpassend. ${curRodTask.expDe}</div>
+            <div class="bilingual-ru ru-text" style="color:var(--bad);">Сборка не подходит под задание. ${curRodTask.expRu}</div>
+        `;
+        recordMistake({
+            key: "rod_" + curRodTask.id,
+            titleDe: curRodTask.taskDe,
+            titleRu: curRodTask.taskRu,
+            detailDe: curRodTask.expDe,
+            detailRu: curRodTask.expRu
+        });
+    }
+    res.classList.remove("hidden");
+}
+
+function startTheoryQuiz() {
+    thOrder = [...theoryQuestions].sort(() => Math.random() - 0.5);
+    thIdx = 0;
+    thScore = 0;
+    renderTheoryStep();
+}
+
+function renderTheoryStep() {
+    const qBox = document.getElementById("th-question");
+    const oBox = document.getElementById("th-options");
+    const expBox = document.getElementById("th-explain");
+    const nextBtn = document.getElementById("th-next");
+    expBox.classList.add("hidden");
+    nextBtn.classList.add("hidden");
+
+    if (thIdx >= thOrder.length) {
+        document.getElementById("th-header").innerHTML = `Fertig: ${thScore} von ${thOrder.length}<span class="ru-text"> · Блок завершён: ${thScore} из ${thOrder.length}</span>`;
+        qBox.innerHTML = `<div class="bilingual-de">Klicken Sie auf „Neu starten“, um erneut zu üben.</div><div class="bilingual-ru ru-text">Нажмите «Начать заново», чтобы повторить.</div>`;
+        oBox.innerHTML = "";
+        return;
+    }
+
+    const item = thOrder[thIdx];
+    document.getElementById("th-header").innerHTML = `Frage ${thIdx + 1} von ${thOrder.length} · Richtig: ${thScore}<span class="ru-text"> · Вопрос ${thIdx + 1} из ${thOrder.length}</span>`;
+    qBox.innerHTML = `<div class="bilingual-de">${item.qDe}</div><div class="bilingual-ru ru-text">${item.qRu}</div>`;
+    oBox.innerHTML = item.opts.map((opt, idx) => `
+        <button class="opt-btn" onclick="answerTheory(this, ${idx}, ${item.correct})">
+            <div><b>${opt.de}</b></div>
+            <div class="ru-text" style="color:#0369a1;margin-top:2px;">${opt.ru}</div>
+        </button>
+    `).join("");
+}
+
+function answerTheory(btn, chosen, correct) {
+    const item = thOrder[thIdx];
+    const buttons = document.querySelectorAll("#th-options .opt-btn");
+    buttons.forEach((b, i) => {
+        b.disabled = true;
+        if (i === correct) b.classList.add("ok");
+        else if (i === chosen && chosen !== correct) b.classList.add("bad");
+    });
+    if (chosen === correct) {
+        thScore++;
+    } else {
+        recordMistake({
+            key: "th_" + item.id,
+            titleDe: item.qDe,
+            titleRu: item.qRu,
+            detailDe: `${item.opts[correct].de} — ${item.expDe}`,
+            detailRu: `${item.opts[correct].ru} — ${item.expRu}`
+        });
+    }
+    const expBox = document.getElementById("th-explain");
+    expBox.innerHTML = `<div class="bilingual-de">${item.expDe}</div><div class="bilingual-ru ru-text">${item.expRu}</div>`;
+    expBox.classList.remove("hidden");
+    document.getElementById("th-next").classList.remove("hidden");
+}
+
+function nextTheoryQuestion() {
+    thIdx++;
+    renderTheoryStep();
+}
+
+function renderMistakes() {
+    const box = document.getElementById("mistakes-list");
+    const retryBtn = document.getElementById("btn-retry-mistakes");
+    if (mistakes.length === 0) {
+        retryBtn.classList.add("hidden");
+        box.innerHTML = `<div class="bilingual-block"><div class="bilingual-de">Keine Fehler gespeichert.</div><div class="bilingual-ru ru-text">Ошибок пока нет — пройдите тесты или симулятор экзамена.</div></div>`;
+        return;
+    }
+    retryBtn.classList.remove("hidden");
+    box.innerHTML = mistakes.map(m => `
+        <div class="card">
+            <span class="err-badge">Fehler<span class="ru-text"> / Ошибка</span></span>
+            <div class="bilingual-de">${m.titleDe}</div>
+            <div class="bilingual-ru ru-text">${m.titleRu}</div>
+            <div style="font-size:0.82rem;color:#475569;margin-top:6px;"><b>DE:</b> ${m.detailDe}</div>
+            <div class="ru-text" style="font-size:0.82rem;color:#0369a1;margin-top:3px;"><b>RU:</b> ${m.detailRu}</div>
+        </div>
+    `).join("");
+}
+
+function startMistakeDrill() {
+    if (mistakes.length === 0) return;
+    showTab("theory");
+    const converted = mistakes.map((m, idx) => ({
+        id: "err_" + idx,
+        qDe: m.titleDe,
+        qRu: m.titleRu,
+        opts: [
+            { de: m.detailDe, ru: m.detailRu },
+            { de: "Andere Antwort (prüfen)", ru: "Другой вариант (проверьте)" }
+        ],
+        correct: 0,
+        expDe: m.detailDe,
+        expRu: m.detailRu
+    }));
+    thOrder = converted;
+    thIdx = 0;
+    thScore = 0;
+    renderTheoryStep();
+}
+
+function clearMistakes() {
+    mistakes = [];
+    updateErrorCounter();
+    renderMistakes();
+}
+
+function startFullExamSim() {
+    const fishPart = [...speciesList].sort(() => Math.random() - 0.5).slice(0, 6).map(f => ({
+        type: "species",
+        fish: f
+    }));
+    const theoryPart = [...theoryQuestions].sort(() => Math.random() - 0.5).slice(0, 4).map(q => ({
+        type: "theory",
+        qItem: q
+    }));
+    simSteps = [...fishPart, ...theoryPart].sort(() => Math.random() - 0.5);
+    simIdx = 0;
+    simScore = 0;
+    renderSimStep();
+}
+
+function renderSimStep() {
+    const mediaBox = document.getElementById("sim-media-box");
+    const qBox = document.getElementById("sim-question");
+    const oBox = document.getElementById("sim-options");
+    const expBox = document.getElementById("sim-explain");
+    const nextBtn = document.getElementById("sim-next");
+    expBox.classList.add("hidden");
+    nextBtn.classList.add("hidden");
+
+    if (simIdx >= simSteps.length) {
+        simCurrent = null;
+        mediaBox.classList.add("hidden");
+        document.getElementById("sim-header").innerHTML = `Prüfung beendet: ${simScore} von ${simSteps.length}<span class="ru-text"> · Экзамен завершён: ${simScore} из ${simSteps.length}</span>`;
+        qBox.innerHTML = `<div class="bilingual-de">${simScore >= 7 ? "Prüfung bestanden!" : "Weiter üben — Prüfung noch nicht bestanden."}</div><div class="bilingual-ru ru-text">${simScore >= 7 ? "Экзамен условно пройден (7+ из 10)." : "Нужно больше практики — попробуйте ещё раз."}</div>`;
+        oBox.innerHTML = "";
+        return;
+    }
+
+    simCurrent = simSteps[simIdx];
+    document.getElementById("sim-header").innerHTML =
+        `Schritt ${simIdx + 1} von ${simSteps.length} · Richtig: ${simScore}<span class="ru-text"> · Шаг ${simIdx + 1} из ${simSteps.length}</span>`;
+
+    if (simCurrent.type === "species") {
+        const f = simCurrent.fish;
+        mediaBox.classList.remove("hidden");
+        mediaBox.innerHTML = buildSpeciesVisualHtml(f, true);
+        qBox.innerHTML = `<div class="bilingual-de">Welche Art gehört zu Nr. ${f.num} (Anlage 3)?</div><div class="bilingual-ru ru-text">Какой это вид по номеру и признакам (Anlage 3)?</div>`;
+        const choices = [f];
+        while (choices.length < 3) {
+            const rand = speciesList[Math.floor(Math.random() * speciesList.length)];
+            if (!choices.some(c => c.num === rand.num)) choices.push(rand);
+        }
+        choices.sort(() => Math.random() - 0.5);
+        oBox.innerHTML = choices.map(c => `
+            <button class="opt-btn" onclick="answerSimSpecies(this, '${c.num}')">
+                <b>${c.de}</b> <span class="ru-text">— ${c.ru}</span>
+            </button>
+        `).join("");
+    } else {
+        const item = simCurrent.qItem;
+        mediaBox.classList.add("hidden");
+        qBox.innerHTML = `<div class="bilingual-de">${item.qDe}</div><div class="bilingual-ru ru-text">${item.qRu}</div>`;
+        oBox.innerHTML = item.opts.map((opt, idx) => `
+            <button class="opt-btn" onclick="answerSimTheory(this, ${idx}, ${item.correct})">
+                <div><b>${opt.de}</b></div>
+                <div class="ru-text" style="color:#0369a1;margin-top:2px;">${opt.ru}</div>
+            </button>
+        `).join("");
+    }
+}
+
+function answerSimSpecies(btn, chosenNum) {
+    const f = simCurrent.fish;
+    const buttons = document.querySelectorAll("#sim-options .opt-btn");
+    buttons.forEach(b => b.disabled = true);
+    const expBox = document.getElementById("sim-explain");
+    if (chosenNum === f.num) {
+        btn.classList.add("ok");
+        simScore++;
+        expBox.innerHTML = `<div class="bilingual-de">Richtig: ${f.de}</div><div class="bilingual-ru ru-text">Верно: ${f.ru}</div>`;
+    } else {
+        btn.classList.add("bad");
+        buttons.forEach(b => { if (b.textContent.includes(f.de)) b.classList.add("ok"); });
+        expBox.innerHTML = `<div class="bilingual-de">Richtig: ${f.de} (${f.la})</div><div class="bilingual-ru ru-text">Правильно: ${f.ru}</div>`;
+        recordMistake({
+            key: "sim_sp_" + f.num,
+            titleDe: `Prüfung #${f.num}: ${f.de} (${f.la})`,
+            titleRu: `Экзамен #${f.num}: ${f.ru}`,
+            detailDe: `Richtige Art: ${f.de}`,
+            detailRu: `Правильный вид: ${f.de} — ${f.ru}`
+        });
+    }
+    expBox.classList.remove("hidden");
+    document.getElementById("sim-next").classList.remove("hidden");
+}
+
+function answerSimTheory(btn, chosen, correct) {
+    const item = simCurrent.qItem;
+    const buttons = document.querySelectorAll("#sim-options .opt-btn");
+    buttons.forEach((b, i) => {
+        b.disabled = true;
+        if (i === correct) b.classList.add("ok");
+        else if (i === chosen && chosen !== correct) b.classList.add("bad");
+    });
+    if (chosen === correct) {
+        simScore++;
+    } else {
+        recordMistake({
+            key: "sim_th_" + item.id,
+            titleDe: item.qDe,
+            titleRu: item.qRu,
+            detailDe: `${item.opts[correct].de} — ${item.expDe}`,
+            detailRu: `${item.opts[correct].ru} — ${item.expRu}`
+        });
+    }
+    const expBox = document.getElementById("sim-explain");
+    expBox.innerHTML = `<div class="bilingual-de">${item.expDe}</div><div class="bilingual-ru ru-text">${item.expRu}</div>`;
+    expBox.classList.remove("hidden");
+    document.getElementById("sim-next").classList.remove("hidden");
+}
+
+function nextSimStep() {
+    simIdx++;
+    renderSimStep();
+}
+
+try {
+    if (localStorage.getItem("nrw_hide_ru") === "1") hideRu = true;
+} catch (e) {}
+
+renderCatalog();
+updateErrorCounter();
+applyLangState();
+</script>
+</body>
+</html>
